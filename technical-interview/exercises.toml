@@ -1,0 +1,414 @@
+# ── Data Structures ───────────────────────────────────────────────────────────
+
+[[exercises]]
+level = "data-structures"
+task = "Implement a Singly Linked List from scratch. Include: node definition, append, prepend, delete by value, and traversal."
+hint = '''
+Node: value + next pointer (next = None by default)
+LinkedList: head pointer (head = None by default)
+
+append(val):   walk to tail (while node.next), set tail.next = new Node
+prepend(val):  new_node.next = self.head; self.head = new_node
+delete(val):   track prev; when node.val == val set prev.next = node.next
+traverse():    start at head, walk .next until None
+
+Edge cases: empty list, deleting the head node, deleting a non-existent value.
+'''
+
+[[exercises]]
+level = "data-structures"
+task = "Reverse a Singly Linked List, both iteratively and recursively."
+hint = '''
+Iterative (3 pointers):
+  prev = None
+  while curr:
+    next_node = curr.next
+    curr.next = prev
+    prev = curr
+    curr = next_node
+  return prev   (new head)
+
+Recursive:
+  if not head or not head.next: return head
+  new_head = reverse(head.next)
+  head.next.next = head
+  head.next = None
+  return new_head
+
+Time O(n), Space O(1) iterative / O(n) recursive (call stack).
+'''
+
+[[exercises]]
+level = "data-structures"
+task = "Implement an array-based Fixed-Capacity Queue. Include: enqueue, dequeue, peek, is_empty, is_full."
+hint = '''
+Use a circular buffer: array of size capacity, head and tail indices, size counter.
+
+enqueue(val):  if full raise; arr[tail] = val; tail = (tail+1) % cap; size += 1
+dequeue():     if empty raise; val = arr[head]; head = (head+1) % cap; size -= 1
+peek():        return arr[head]
+is_full():     size == capacity
+is_empty():    size == 0
+
+Circular indexing prevents needing to shift elements on dequeue.
+'''
+
+[[exercises]]
+level = "data-structures"
+task = '''Implement an array-based Hash Table with:
+  - A hash function
+  - insert(key, value)
+  - lookup(key)
+  - remove(key)
+  - Collision resolution via chaining with doubly linked lists
+  - Dynamic resizing when load factor exceeds a threshold'''
+hint = '''
+hash(key):     sum(ord(c) * 31^i for i, c in enumerate(key)) % capacity
+               (polynomial rolling hash)
+
+Each bucket: a doubly linked list of (key, value) nodes.
+
+insert(k, v):  idx = hash(k); walk chain to check for existing key (update) or append new node
+lookup(k):     idx = hash(k); walk chain for matching key
+remove(k):     idx = hash(k); find node, unlink it from doubly linked list
+
+Resize trigger: load_factor = num_items / capacity > 0.7
+Resize:        new capacity = 2 * old capacity; rehash all entries
+
+Load factor goal: keep between 0.3 and 0.7 for O(1) average operations.
+'''
+
+[[exercises]]
+level = "data-structures"
+task = "Implement a Graph using an Adjacency List. Write BFS and DFS traversal methods."
+hint = '''
+Representation: dict mapping each node -> list of neighbors
+  graph = defaultdict(list)
+  graph[u].append(v)   (and graph[v].append(u) for undirected)
+
+BFS (iterative — queue):
+  visited = set(); queue = deque([start])
+  while queue: node = queue.popleft(); visit; add unvisited neighbors
+
+DFS (recursive):
+  visited = set()
+  def dfs(node): visit; for n in graph[node]: if n not in visited: dfs(n)
+
+DFS (iterative — stack):
+  visited = set(); stack = [start]
+  while stack: node = stack.pop(); if not visited: visit; push neighbors
+
+BFS = shortest path in unweighted graph. DFS = cycle detection, topological sort.
+'''
+
+[[exercises]]
+level = "data-structures"
+task = "Implement a Trie (prefix tree) from scratch. Include: insert, search (exact), and starts_with (prefix search)."
+hint = '''
+TrieNode: children = {} (or array[26]), is_end = False
+Trie: root = TrieNode()
+
+insert(word):
+  node = root
+  for ch in word: node = node.children.setdefault(ch, TrieNode())
+  node.is_end = True
+
+search(word):
+  node = root
+  for ch in word: if ch not in node.children: return False; node = node.children[ch]
+  return node.is_end
+
+starts_with(prefix):
+  node = root
+  for ch in prefix: if ch not in node.children: return False; node = node.children[ch]
+  return True
+
+Time O(m) per operation where m = word length. Space O(total characters inserted).
+'''
+
+[[exercises]]
+level = "data-structures"
+task = "Given a list of items, return: (1) all possible permutations, and (2) all possible subsets (power set)."
+hint = '''
+Permutations (backtracking):
+  def perms(arr, current=[]):
+    if len(current) == len(arr): result.append(current[:])
+    for i, x in enumerate(arr):
+      if i not in used: used.add(i); current.append(x); perms(arr); current.pop(); used.remove(i)
+  n! permutations total.
+
+Subsets (backtracking or bitmask):
+  Backtracking:
+    def subsets(i, current):
+      result.append(current[:])
+      for j in range(i, len(arr)): current.append(arr[j]); subsets(j+1, current); current.pop()
+
+  Bitmask: for mask in range(2**n): subset = [arr[i] for i in range(n) if mask & (1<<i)]
+
+  2^n subsets total. Both approaches O(n * 2^n) time.
+'''
+
+# ── Algorithms ────────────────────────────────────────────────────────────────
+
+[[exercises]]
+level = "algorithms"
+task = "Implement Binary Search both recursively and iteratively on a sorted array."
+hint = '''
+Iterative:
+  lo, hi = 0, len(arr) - 1
+  while lo <= hi:
+    mid = (lo + hi) // 2
+    if arr[mid] == target: return mid
+    elif arr[mid] < target: lo = mid + 1
+    else: hi = mid - 1
+  return -1
+
+Recursive:
+  def bs(lo, hi):
+    if lo > hi: return -1
+    mid = (lo + hi) // 2
+    if arr[mid] == target: return mid
+    elif arr[mid] < target: return bs(mid+1, hi)
+    else: return bs(lo, mid-1)
+
+Time O(log n), Space O(1) iterative / O(log n) recursive.
+'''
+
+[[exercises]]
+level = "algorithms"
+task = "Write Merge Sort."
+hint = '''
+def mergesort(arr):
+  if len(arr) <= 1: return arr
+  mid = len(arr) // 2
+  left = mergesort(arr[:mid])
+  right = mergesort(arr[mid:])
+  return merge(left, right)
+
+def merge(left, right):
+  result = []; i = j = 0
+  while i < len(left) and j < len(right):
+    if left[i] <= right[j]: result.append(left[i]); i += 1
+    else: result.append(right[j]); j += 1
+  return result + left[i:] + right[j:]
+
+Time O(n log n) all cases. Space O(n). Stable sort.
+'''
+
+[[exercises]]
+level = "algorithms"
+task = "Write Quicksort."
+hint = '''
+def quicksort(arr, lo, hi):
+  if lo < hi:
+    p = partition(arr, lo, hi)
+    quicksort(arr, lo, p - 1)
+    quicksort(arr, p + 1, hi)
+
+def partition(arr, lo, hi):   # Lomuto scheme
+  pivot = arr[hi]
+  i = lo - 1
+  for j in range(lo, hi):
+    if arr[j] <= pivot: i += 1; arr[i], arr[j] = arr[j], arr[i]
+  arr[i+1], arr[hi] = arr[hi], arr[i+1]
+  return i + 1
+
+Time O(n log n) average, O(n^2) worst (bad pivot). Space O(log n) avg.
+Unstable sort. Use random pivot selection to avoid worst case.
+'''
+
+[[exercises]]
+level = "algorithms"
+task = "Print all nodes of a binary tree using BFS (level-order traversal)."
+hint = '''
+from collections import deque
+
+def bfs(root):
+  if not root: return
+  q = deque([root])
+  while q:
+    node = q.popleft()
+    print(node.val)
+    if node.left:  q.append(node.left)
+    if node.right: q.append(node.right)
+
+To print level-by-level: track level size with len(q) before processing each level.
+Time O(n), Space O(w) where w = max width of tree.
+'''
+
+[[exercises]]
+level = "algorithms"
+task = "Print a binary tree using DFS in-order traversal — both recursively and iteratively."
+hint = '''
+In-order: LEFT → ROOT → RIGHT  (gives sorted order for a BST)
+
+Recursive:
+  def inorder(node):
+    if node:
+      inorder(node.left)
+      print(node.val)
+      inorder(node.right)
+
+Iterative (explicit stack):
+  stack = []; curr = root
+  while curr or stack:
+    while curr: stack.append(curr); curr = curr.left
+    curr = stack.pop()
+    print(curr.val)
+    curr = curr.right
+'''
+
+[[exercises]]
+level = "algorithms"
+task = "Print a binary tree using DFS pre-order traversal — both recursively and iteratively."
+hint = '''
+Pre-order: ROOT → LEFT → RIGHT  (useful for serializing / copying a tree)
+
+Recursive:
+  def preorder(node):
+    if node:
+      print(node.val)
+      preorder(node.left)
+      preorder(node.right)
+
+Iterative (stack):
+  stack = [root]
+  while stack:
+    node = stack.pop()
+    if node:
+      print(node.val)
+      stack.append(node.right)   # right pushed first so left is processed first
+      stack.append(node.left)
+'''
+
+[[exercises]]
+level = "algorithms"
+task = "Print a binary tree using DFS post-order traversal — both recursively and iteratively."
+hint = '''
+Post-order: LEFT → RIGHT → ROOT  (useful for deleting a tree, evaluating expression trees)
+
+Recursive:
+  def postorder(node):
+    if node:
+      postorder(node.left)
+      postorder(node.right)
+      print(node.val)
+
+Iterative (two-stack approach):
+  s1, s2 = [root], []
+  while s1:
+    node = s1.pop(); s2.append(node)
+    if node.left:  s1.append(node.left)
+    if node.right: s1.append(node.right)
+  while s2: print(s2.pop().val)
+'''
+
+[[exercises]]
+level = "algorithms"
+task = "Implement cycle detection for both a directed graph and an undirected graph."
+hint = '''
+Directed (DFS with rec_stack):
+  visited = set(); rec_stack = set()
+  def has_cycle(node):
+    visited.add(node); rec_stack.add(node)
+    for neighbor in graph[node]:
+      if neighbor not in visited and has_cycle(neighbor): return True
+      if neighbor in rec_stack: return True
+    rec_stack.remove(node)
+    return False
+  rec_stack tracks nodes in the current DFS path (back edge = cycle).
+
+Undirected (DFS with parent tracking):
+  def has_cycle(node, parent, visited):
+    visited.add(node)
+    for neighbor in graph[node]:
+      if neighbor not in visited:
+        if has_cycle(neighbor, node, visited): return True
+      elif neighbor != parent: return True   # back edge to non-parent
+    return False
+'''
+
+[[exercises]]
+level = "algorithms"
+task = "Implement Topological Sort on a directed acyclic graph (DAG) — both recursively (DFS) and iteratively (Kahn's algorithm)."
+hint = '''
+DFS (post-order, reverse):
+  visited = set(); result = []
+  def dfs(node):
+    visited.add(node)
+    for neighbor in graph[node]:
+      if neighbor not in visited: dfs(neighbor)
+    result.append(node)
+  for node in graph: if node not in visited: dfs(node)
+  return result[::-1]
+
+Kahn's (BFS, in-degree):
+  compute in_degree for every node
+  queue = deque([n for n in graph if in_degree[n] == 0])
+  while queue:
+    node = queue.popleft(); result.append(node)
+    for neighbor in graph[node]:
+      in_degree[neighbor] -= 1
+      if in_degree[neighbor] == 0: queue.append(neighbor)
+  if len(result) != len(graph): cycle detected (not a DAG)
+'''
+
+[[exercises]]
+level = "algorithms"
+task = '''Implement the following bit manipulation operations:
+  1) Clear the lowest set bit of x
+  2) Right-propagate the lowest set bit of x
+  3) Extract the lowest set bit of x
+  4) Clear all bits from LSB to the i-th bit (inclusive)
+  5) Clear all bits from MSB to the i-th bit (inclusive)
+  6) Divide by 2 and multiply by 2
+  7) Upper → lower and lower → upper case conversion (ASCII trick)
+  8) Count set bits in an integer
+  9) Check if an integer is a power of 2
+  10) Calculate x ^ y without using **
+  11) Swap the bits at two given positions
+  12) Reverse all bits of x'''
+hint = '''
+1)  x & (x - 1)            — clears lowest set bit
+2)  x | (x - 1)            — right-propagates lowest set bit
+3)  x & (-x)               — isolates lowest set bit
+4)  x & ~((1 << (i+1)) - 1)
+5)  x & ((1 << i) - 1)
+6)  x >> 1  (div by 2),  x << 1  (mul by 2)
+7)  upper->lower: ch | 0x20   lower->upper: ch & ~0x20  (bit 5 trick)
+8)  Brian Kernighan: count = 0; while x: x &= x-1; count += 1
+9)  x > 0 and (x & (x-1)) == 0
+10) def pow(x, y): return 1 if y==0 else x * pow(x, y-1)   (or iterative)
+11) if ((x >> i) & 1) != ((x >> j) & 1): x ^= (1 << i) | (1 << j)
+12) result = 0
+    for _ in range(32): result = (result << 1) | (x & 1); x >>= 1
+'''
+
+[[exercises]]
+level = "algorithms"
+task = '''Find the kth smallest element in an unsorted list using four different approaches:
+  1) Sorting
+  2) Min-heap and Max-heap
+  3) QuickSelect
+  4) Median of Medians'''
+hint = '''
+1) Sort + index:  sorted(arr)[k-1]    — O(n log n)
+
+2) Min-heap:  heapify(arr); pop k times  — O(n + k log n)
+   Max-heap of size k:  push each element; if heap size > k pop max
+   Final heap top = kth smallest  — O(n log k)
+
+3) QuickSelect (avg O(n)):
+   partition like quicksort; recurse only on the side containing index k-1
+   if pivot_idx == k-1: return arr[pivot_idx]
+   elif pivot_idx < k-1: search right
+   else: search left
+
+4) Median of Medians (guaranteed O(n)):
+   - Split into groups of 5
+   - Find median of each group
+   - Recursively find median of those medians (the "pivot")
+   - Partition around the pivot
+   - Recurse on correct partition
+   Guarantees at least 30% of elements on each side of the pivot.
+'''
